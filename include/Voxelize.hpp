@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include <nlohmann/json.hpp>
+
 using namespace std;
 
 class VoxelMask{
@@ -46,6 +48,8 @@ private:
     int m_size;
 };
 
-void Voxelize(VoxelMask mask);
+// Input: 3D mask of where a voxel should be
+// Output: vertices, edges, and faces
+void Voxelize(VoxelMask &mask,nlohmann::json &output);
 
 #endif
