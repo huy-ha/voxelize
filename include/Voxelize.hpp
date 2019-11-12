@@ -7,23 +7,30 @@
 
 using namespace std;
 
-class VoxelMask{
+class VoxelMask
+{
 public:
-    inline VoxelMask(int N){
+    inline VoxelMask(int N)
+    {
         m_size = N;
-        for(int i = 0; i < N; i++){
+        for (int i = 0; i < N; i++)
+        {
             m_mask.push_back(vector<vector<bool>>());
-            for(int j = 0; j < N; j++){
+            for (int j = 0; j < N; j++)
+            {
                 m_mask[i].push_back(vector<bool>());
-                for (int k = 0; k < N; k++){
+                for (int k = 0; k < N; k++)
+                {
                     m_mask[i][j].push_back(false);
                 }
             }
         }
     }
 
-    inline bool set(int i, int j, int k,bool val){
-        if(i >= m_size || j >= m_size || k >= m_size){
+    inline bool set(int i, int j, int k, bool val)
+    {
+        if (i >= m_size || j >= m_size || k >= m_size)
+        {
             cout << "ERROR: wrong dimensions" << endl;
             return false;
         }
@@ -31,18 +38,24 @@ public:
         return true;
     }
 
-    inline void ForEachVoxel(function<void(int,int,int,bool)> f){
-        for(int i = 0; i < m_size; i++){
-            for(int j = 0; j < m_size; j++){
-                for (int k = 0; k < m_size; k++){
-                    f(i,j,k,m_mask[i][j][k]);
+    inline void ForEachVoxel(function<void(int, int, int, bool)> f)
+    {
+        for (int i = 0; i < m_size; i++)
+        {
+            for (int j = 0; j < m_size; j++)
+            {
+                for (int k = 0; k < m_size; k++)
+                {
+                    f(i, j, k, m_mask[i][j][k]);
                 }
             }
         }
     }
 
-    inline bool Get(int i, int j, int k) const {
-        if(i >= m_size || j >= m_size || k >= m_size){
+    inline bool Get(int i, int j, int k) const
+    {
+        if (i >= m_size || j >= m_size || k >= m_size)
+        {
             return false;
         }
         return m_mask[i][j][k];
@@ -57,6 +70,6 @@ private:
 
 // Input: 3D mask of where a voxel should be
 // Output: vertices, edges, and faces
-void Voxelize(VoxelMask &mask,nlohmann::json &output);
+void Voxelize(VoxelMask &mask, nlohmann::json &output, double L = 1);
 
 #endif
