@@ -4,46 +4,53 @@
 #include <tuple>
 #include <string>
 #include <functional>
+#include <nlohmann/json.hpp>
 
 using namespace std;
-struct Foo
-{
-    int bar1;
-    int bar2;
-    int bar3;
-};
 
-TEST(BasicTest, Constructor)
+TEST(Dimensions, TestCube1)
 {
-    // vector<tuple<string, function<float(Foo)>>> fitnessMaps;
-    // fitnessMaps.push_back(make_tuple("Bar1", [](const Foo &f) {
-    //     return f.bar1;
-    // }));
-    // fitnessMaps.push_back(make_tuple("Bar2", [](const Foo &f) {
-    //     return f.bar2;
-    // }));
-    // fitnessMaps.push_back(make_tuple("Bar3", [](const Foo &f) {
-    //     return f.bar3;
-    // }));
-    // vector<Foo> foos;
-
-    // Pareto<Foo> pareto(fitnessMaps);
-    // int val = pareto.FindFront(foos);
-    int val = 0;
-    ASSERT_EQ(val, 0);
+    nlohmann::json j;
+    int n = 1;
+    VoxelMask mask(n);
+    for(int x = 0; x < n; x++){
+        for(int y = 0; y < n; y++){
+            for(int z = 0; z < n; z++){
+                mask.set(x,y,z,true);
+            }
+        }
+    }
+    Voxelize(mask,j);
+    EXPECT_EQ(j["vertices"].size(), 8);
+    EXPECT_EQ(j["edges"].size(), 28);
 }
 
-TEST(BasicTest, StandardInput2)
+
+TEST(Dimensions, TestCube2)
 {
-    EXPECT_TRUE(true);
+    nlohmann::json j;
+    int n = 1;
+    VoxelMask mask(2);
+    mask.set(0,0,0,true);
+    mask.set(1,0,0,true);
+    Voxelize(mask,j);
+    EXPECT_EQ(j["vertices"].size(), 12);
+    // EXPECT_EQ(j["edges"].size(), 50);
 }
 
-TEST(BasicTest, StandardInput3)
+TEST(Dimensions, TestCube3)
 {
-    ASSERT_TRUE(true);
-}
+    nlohmann::json j;
+    int n = 1;
 
-TEST(BasicTest, StandardInput4)
-{
-    ASSERT_TRUE(true);
+    VoxelMask mask(3);
+    for(int x = 0; x < n; x++){
+        for(int y = 0; y < n; y++){
+            for(int z = 0; z < n; z++){
+                mask.set(x,y,z,true);
+            }
+        }
+    }
+    Voxelize(mask,j);
+    EXPECT_EQ(j["vertices"].size(), (n+1)*(n+1)*(n+1));
 }

@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <functional>
+#include <memory>
 #include <nlohmann/json.hpp>
 
 using namespace std;
@@ -71,5 +72,7 @@ private:
 // Input: 3D mask of where a voxel should be
 // Output: vertices, edges, and faces
 void Voxelize(VoxelMask &mask, nlohmann::json &output, double L = 1);
+
+void RemoveDuplicatePoints(shared_ptr<vector<tuple<double, double, double>>> &points);
 
 #endif
