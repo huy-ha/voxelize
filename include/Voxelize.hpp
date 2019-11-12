@@ -41,6 +41,13 @@ public:
         }
     }
 
+    inline bool Get(int i, int j, int k) const {
+        if(i >= m_size || j >= m_size || k >= m_size){
+            return false;
+        }
+        return m_mask[i][j][k];
+    }
+
     inline int Size() const { return m_size; }
 
 private:
