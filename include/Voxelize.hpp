@@ -55,7 +55,7 @@ public:
 
     inline bool Get(int i, int j, int k) const
     {
-        if (i >= m_size || j >= m_size || k >= m_size)
+        if (i >= m_size || j >= m_size || k >= m_size || i < 0 || j < 0 || k < 0)
         {
             return false;
         }
@@ -75,6 +75,6 @@ void Voxelize(VoxelMask &mask, nlohmann::json &output, double L = 1);
 
 void RemoveDuplicatePoints(shared_ptr<vector<tuple<double, double, double>>> &points);
 
-void RemoveDuplicateEdges(shared_ptr<vector<tuple<int, int, double>>> &points);
+void RemoveDuplicateEdges(shared_ptr<vector<tuple<int, int, double>>> &edges);
 
 #endif

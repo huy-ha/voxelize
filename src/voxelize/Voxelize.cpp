@@ -68,10 +68,11 @@ static void AddToEdgesIfPointExists(
 void Voxelize(VoxelMask &mask, nlohmann::json &output, double L)
 {
     using namespace std;
-    double x, y, z, x_other, y_other, z_other, length;
-    int idx;
+    double x, y, z;
+
     auto points = make_shared<vector<tuple<double, double, double>>>();
     auto edges = make_shared<vector<tuple<int, int, double>>>();
+    auto faces = make_shared<vector<tuple<int, int, int>>>();
     mask.ForEachVoxel([&](int i, int j, int k, bool val) {
         if (val)
         {
@@ -132,6 +133,83 @@ void Voxelize(VoxelMask &mask, nlohmann::json &output, double L)
     }
     RemoveDuplicateEdges(edges);
 
+    // Create faces
+    mask.ForEachVoxel([&](int i, int j, int k, bool val) {
+        if (val)
+        {
+            // up
+            if (!mask.Get(i, j + 1, k))
+            {
+                int vtx1 = IndexOfPoint(*points, make_tuple(i + 0.5, j + 0.5, k + 0.5));
+                int vtx2 = IndexOfPoint(*points, make_tuple(i + 0.5, j + 0.5, k - 0.5));
+                int vtx3 = IndexOfPoint(*points, make_tuple(i - 0.5, j + 0.5, k + 0.5));
+                int vtx4 = IndexOfPoint(*points, make_tuple(i - 0.5, j + 0.5, k - 0.5));
+
+                faces->push_back(make_tuple(vtx1, vtx4, vtx2));
+                faces->push_back(make_tuple(vtx1, vtx3, vtx4));
+            }
+
+            // down
+            if (!mask.Get(i, j - 1, k))
+            {
+                int vtx1 = IndexOfPoint(*points, make_tuple(i + 0.5, j - 0.5, k + 0.5));
+                int vtx2 = IndexOfPoint(*points, make_tuple(i + 0.5, j - 0.5, k - 0.5));
+                int vtx3 = IndexOfPoint(*points, make_tuple(i - 0.5, j - 0.5, k + 0.5));
+                int vtx4 = IndexOfPoint(*points, make_tuple(i - 0.5, j - 0.5, k - 0.5));
+
+                faces->push_back(make_tuple(vtx1, vtx4, vtx2));
+                faces->push_back(make_tuple(vtx1, vtx3, vtx4));
+            }
+
+            // left
+            if (!mask.Get(i + 1, j, k))
+            {
+                int vtx1 = IndexOfPoint(*points, make_tuple(i + 0.5, j - 0.5, k + 0.5));
+                int vtx2 = IndexOfPoint(*points, make_tuple(i + 0.5, j - 0.5, k - 0.5));
+                int vtx3 = IndexOfPoint(*points, make_tuple(i + 0.5, j + 0.5, k + 0.5));
+                int vtx4 = IndexOfPoint(*points, make_tuple(i + 0.5, j + 0.5, k - 0.5));
+
+                faces->push_back(make_tuple(vtx1, vtx4, vtx2));
+                faces->push_back(make_tuple(vtx1, vtx3, vtx4));
+            }
+
+            //right
+            if (!mask.Get(i - 1, j, k))
+            {
+                int vtx1 = IndexOfPoint(*points, make_tuple(i - 0.5, j - 0.5, k + 0.5));
+                int vtx2 = IndexOfPoint(*points, make_tuple(i - 0.5, j - 0.5, k - 0.5));
+                int vtx3 = IndexOfPoint(*points, make_tuple(i - 0.5, j + 0.5, k + 0.5));
+                int vtx4 = IndexOfPoint(*points, make_tuple(i - 0.5, j + 0.5, k - 0.5));
+
+                faces->push_back(make_tuple(vtx1, vtx4, vtx2));
+                faces->push_back(make_tuple(vtx1, vtx3, vtx4));
+            }
+
+            //forward
+            if (!mask.Get(i, j, k + 1))
+            {
+                int vtx1 = IndexOfPoint(*points, make_tuple(i + 0.5, j - 0.5, k + 0.5));
+                int vtx2 = IndexOfPoint(*points, make_tuple(i - 0.5, j - 0.5, k + 0.5));
+                int vtx3 = IndexOfPoint(*points, make_tuple(i + 0.5, j + 0.5, k + 0.5));
+                int vtx4 = IndexOfPoint(*points, make_tuple(i - 0.5, j + 0.5, k + 0.5));
+
+                faces->push_back(make_tuple(vtx1, vtx4, vtx2));
+                faces->push_back(make_tuple(vtx1, vtx3, vtx4));
+            }
+            //back
+            if (!mask.Get(i, j, k - 1))
+            {
+                int vtx1 = IndexOfPoint(*points, make_tuple(i + 0.5, j - 0.5, k - 0.5));
+                int vtx2 = IndexOfPoint(*points, make_tuple(i - 0.5, j - 0.5, k - 0.5));
+                int vtx3 = IndexOfPoint(*points, make_tuple(i + 0.5, j + 0.5, k - 0.5));
+                int vtx4 = IndexOfPoint(*points, make_tuple(i - 0.5, j + 0.5, k - 0.5));
+
+                faces->push_back(make_tuple(vtx1, vtx4, vtx2));
+                faces->push_back(make_tuple(vtx1, vtx3, vtx4));
+            }
+        }
+    });
+
     for (auto &edge : *edges)
     {
         nlohmann::json edgeOutput;
@@ -141,5 +219,12 @@ void Voxelize(VoxelMask &mask, nlohmann::json &output, double L)
         output["edges"].push_back(edgeOutput);
     }
 
-    // output["faces"] = "faces";
+    for (auto &face : *faces)
+    {
+        nlohmann::json faceOutput;
+        faceOutput.push_back(get<0>(face));
+        faceOutput.push_back(get<1>(face));
+        faceOutput.push_back(get<2>(face));
+        output["faces"].push_back(faceOutput);
+    }
 }
