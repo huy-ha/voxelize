@@ -72,9 +72,4 @@ private:
 // Input: 3D mask of where a voxel should be
 // Output: vertices, edges, and faces
 void Voxelize(VoxelMask &mask, nlohmann::json &output, double L = 1);
-
-void RemoveDuplicatePoints(shared_ptr<vector<tuple<double, double, double>>> &points);
-
-void RemoveDuplicateEdges(shared_ptr<vector<tuple<int, int, double>>> &edges);
-
 #endif
