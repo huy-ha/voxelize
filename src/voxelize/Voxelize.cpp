@@ -5,7 +5,8 @@
 #include <tuple>
 #include <algorithm>
 
-static int IndexOfPoint(vector<tuple<double, double, double>> &points, const tuple<double, double, double> &point)
+static int IndexOfPoint(vector<tuple<double, double, double>> &points,
+                        const tuple<double, double, double> &point)
 {
     auto it = find(points.begin(), points.end(), point);
     if (it == points.end())
@@ -14,7 +15,7 @@ static int IndexOfPoint(vector<tuple<double, double, double>> &points, const tup
 }
 
 static void AddToEdgesIfPointExists(
-    set<tuple<int, int, double>> &edges,
+    set<tuple<int, int>> &edges,
     shared_ptr<vector<tuple<double, double, double>>> points,
     int i, double L,
     double x, double y, double z)
@@ -25,8 +26,7 @@ static void AddToEdgesIfPointExists(
         double x_this = get<0>((*points)[i]);
         double y_this = get<1>((*points)[i]);
         double z_this = get<2>((*points)[i]);
-        double length = pow(pow(x_this - x, 2) + pow(y_this - y, 2) + pow(z_this - z, 2), 0.5) * L;
-        edges.insert(make_tuple(max(i, idx), min(i, idx), length));
+        edges.insert(make_tuple(max(i, idx), min(i, idx)));
     }
 }
 
@@ -36,9 +36,10 @@ void Voxelize(VoxelMask &mask, nlohmann::json &output, double L)
     double x, y, z;
 
     auto pointSet = set<tuple<double, double, double>>();
-    auto edgesSet = set<tuple<int, int, double>>();
+    auto edgesSet = set<tuple<int, int>>();
 
     auto faces = make_shared<vector<tuple<int, int, int>>>();
+    int maskSize = mask.Size();
     mask.ForEachVoxel([&](int i, int j, int k, bool val) {
         if (val)
         {
@@ -97,7 +98,7 @@ void Voxelize(VoxelMask &mask, nlohmann::json &output, double L)
         AddToEdgesIfPointExists(edgesSet, points, i, L, x + 1, y - 1, z - 1);
         AddToEdgesIfPointExists(edgesSet, points, i, L, x - 1, y - 1, z + 1);
     }
-    auto edges = make_shared<vector<tuple<int, int, double>>>(edgesSet.begin(), edgesSet.end());
+    auto edges = make_shared<vector<tuple<int, int>>>(edgesSet.begin(), edgesSet.end());
 
     // Create faces
     mask.ForEachVoxel([&](int i, int j, int k, bool val) {
@@ -181,7 +182,6 @@ void Voxelize(VoxelMask &mask, nlohmann::json &output, double L)
         nlohmann::json edgeOutput;
         edgeOutput["i"] = get<0>(edge);
         edgeOutput["j"] = get<1>(edge);
-        edgeOutput["length"] = get<2>(edge);
         output["edges"].push_back(edgeOutput);
     }
 
