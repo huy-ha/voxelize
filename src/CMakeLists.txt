@@ -1,9 +1,7 @@
-add_library(VoxelizeLib INTERFACE)
-target_include_directories(VoxelizeLib INTERFACE 
+add_library(VoxelizeLib ${PROJECT_SOURCE_DIR}/src/voxelize/Voxelize.cpp)
+target_include_directories(VoxelizeLib PUBLIC 
     ${PROJECT_SOURCE_DIR}/include
 )
-target_sources(VoxelizeLib INTERFACE 
-    ${PROJECT_SOURCE_DIR}/src/voxelize/Voxelize.cpp
-)
+
 add_executable(VoxelizeDemo ${PROJECT_SOURCE_DIR}/src/main.cpp)
 target_link_libraries(VoxelizeDemo VoxelizeLib)
